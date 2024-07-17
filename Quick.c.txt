@@ -1,0 +1,77 @@
+//author:
+
+
+#include <stdio.h>
+#include <time.h>
+
+// Function prototypes
+int partition(int a[], int start, int end);
+void quick(int a[], int start, int end);
+void printArr(int a[], int n);
+
+// Function to partition the array
+int partition(int a[], int start, int end) {
+    int pivot = a[end]; // Pivot element
+    int i = (start - 1);
+
+    for (int j = start; j <= end - 1; j++) {
+        if (a[j] < pivot) {
+            i++;
+            int t = a[i];
+            a[i] = a[j];
+            a[j] = t;
+        }
+    }
+    int t = a[i + 1];
+    a[i + 1] = a[end];
+    a[end] = t;
+    return (i + 1);
+}
+
+// Function to implement quick sort
+void quick(int a[], int start, int end) {
+    if (start < end) {
+        int p = partition(a, start, end);
+        quick(a, start, p - 1);
+        quick(a, p + 1, end);
+    }
+}
+
+// Function to print an array
+void printArr(int a[], int n) {
+    for (int i = 0; i < n; i++)
+        printf("%d ", a[i]);
+}
+
+int main() {
+    printf("**************quick sorting*************\n");
+    printf("Author: Shwetha N\n");
+    printf("Date: 2024-07-17\n");
+    printf("*****************************************\n");
+
+    int a[] = { 24, 9, 29, 14, 19, 27 };
+    int n = sizeof(a) / sizeof(a[0]);
+
+    printf("Before sorting, array elements are:\n");
+    printArr(a, n);
+
+    // Measure start time
+    clock_t start_time = clock();
+
+    quick(a, 0, n - 1);
+
+    // Measure end time
+    clock_t end_time = clock();
+
+    printf("\nAfter sorting, array elements are:\n");
+    printArr(a, n);
+
+    // Calculate delay time
+    double delay_time = ((double) (end_time - start_time)) / CLOCKS_PER_SEC;
+
+    printf("\n\nStart time: %ld clocks\n", start_time);
+    printf("End time: %ld clocks\n", end_time);
+    printf("time taken to sort the array: %f seconds\n", delay_time);
+
+    return 0;
+}
