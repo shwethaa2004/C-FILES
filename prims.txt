@@ -1,0 +1,111 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <limits.h>
+
+#define MAX_VERTICES 100
+
+typedef struct {
+    int vertex;
+    int weight;
+} Edge;
+
+typedef struct {
+    int num_vertices;
+    int num_edges;
+    int** adjacency_matrix;
+} Graph;
+
+void create_graph(Graph* graph, int num_vertices) {
+    graph->num_vertices = num_vertices;
+    graph->num_edges = 0;
+    graph->adjacency_matrix = (int**)malloc(num_vertices * sizeof(int*));
+
+    for (int i = 0; i < num_vertices; i++) {
+        graph->adjacency_matrix[i] = (int*)malloc(num_vertices * sizeof(int));
+
+        for (int j = 0; j < num_vertices; j++) {
+            graph->adjacency_matrix[i][j] = 0;
+        }
+    }
+}
+
+void add_edge(Graph* graph, int vertex1, int vertex2, int weight) {
+    graph->adjacency_matrix[vertex1][vertex2] = weight;
+    graph->adjacency_matrix[vertex2][vertex1] = weight;
+    graph->num_edges++;
+}
+
+void prim(Graph* graph) {
+    int* distances = (int*)malloc(graph->num_vertices * sizeof(int));
+    int* parent = (int*)malloc(graph->num_vertices * sizeof(int));
+    int* visited = (int*)malloc(graph->num_vertices * sizeof(int));
+
+    for (int i = 0; i < graph->num_vertices; i++) {
+        distances[i] = INT_MAX;
+        parent[i] = -1;
+        visited[i] = 0;
+    }
+
+    distances[0] = 0; // start from vertex 0
+
+    for (int i = 0; i < graph->num_vertices; i++) {
+        int min_distance = INT_MAX;
+        int min_vertex = -1;
+
+        for (int j = 0; j < graph->num_vertices; j++) {
+            if (!visited[j] && distances[j] < min_distance) {
+                min_distance = distances[j];
+                min_vertex = j;
+            }
+        }
+
+        visited[min_vertex] = 1;
+
+        for (int j = 0; j < graph->num_vertices; j++) {
+            if (!visited[j] && graph->adjacency_matrix[min_vertex][j] != 0) {
+                int new_distance = distances[min_vertex] + graph->adjacency_matrix[min_vertex][j];
+
+                if (new_distance < distances[j]) {
+                    distances[j] = new_distance;
+                    parent[j] = min_vertex;
+                }
+            }
+        }
+    }
+
+    printf("Minimum Spanning Tree:\n");
+    for (int i = 1; i < graph->num_vertices; i++) {
+        printf("%d - %d: %d\n", parent[i], i, graph->adjacency_matrix[parent[i]][i]);
+    }
+
+    free(distances);
+    free(parent);
+    free(visited);
+}
+
+int main() {
+    int num_vertices, num_edges;
+    printf("Enter the number of vertices: ");
+    scanf("%d", &num_vertices);
+    printf("Enter the number of edges: ");
+    scanf("%d", &num_edges);
+
+    Graph graph;
+    create_graph(&graph, num_vertices);
+
+    printf("Enter the edges (vertex1, vertex2, weight):\n");
+    for (int i = 0; i < num_edges; i++) {
+        int vertex1, vertex2, weight;
+        scanf("%d %d %d", &vertex1, &vertex2, &weight);
+        add_edge(&graph, vertex1, vertex2, weight);
+    }
+
+    prim(&graph);
+
+    for (int i = 0; i < num_vertices; i++) {
+        free(graph.adjacency_matrix[i]);
+    }
+    free(graph.adjacency_matrix);
+
+    return 0;
+}
